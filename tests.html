@@ -1,0 +1,87 @@
+<script src="simpletest.js"></script>
+<script src="../librarySystem.js"></script>
+
+ tests({
+   'It should create and load a library' : function() {
+     librarySystem('app', [], function() {
+       return 'app';
+     });
+     eq(librarySystem('app'), 'app');
+    },
+    'It should accept dependencies' : function() {
+       librarySystem('dependency', [], function() {
+         return 'loaded dependency';
+       });
+      
+       librarySystem('app2', ['dependency'], function(dependency) {
+         return 'app with ' + dependency;
+       });
+      
+      eq(librarySystem('app2'), 'app with loaded dependency');
+    },
+    'It should handle multiple dependencies' : function() {
+      librarySystem('name1', [], function() {
+        return 'Gordon';
+      });
+      
+      librarySystem('company1', [], function() {
+        return 'Watch and Code';
+      });
+      
+      librarySystem('workBlurb1', ['name1', 'company1'], function(name1, company1) {
+        return name1 + ' works at ' + company1;
+      });
+      
+      eq(librarySystem('workBlurb1'), 'Gordon works at Watch and Code');
+    },
+    'It should handle multiple dependencies2' : function() {
+      librarySystem('name3', [], function() {
+        return 'Gordon';
+      });
+      
+      librarySystem('company3', [], function() {
+        return 'Watch and Code';
+      });
+      librarySystem('name2', [], function() {
+        return 'Jacob';
+      });
+      
+      librarySystem('company2', [], function() {
+        return 'Home';
+      });
+      
+      librarySystem('workBlurb3', ['name3', 'company3'], function(name3, company3) {
+        return name3 + ' works at ' + company3;
+      });
+      librarySystem('workBlurb2', ['name2', 'company2','workBlurb3'], function(name2, company2, workBlurb3) {
+        return name2 + ' works at ' + company2 + ' and ' + workBlurb3;
+      });
+      
+      eq(librarySystem('workBlurb2'), 'Jacob works at Home and Gordon works at Watch and Code');
+    },
+    'It should handle dependencies in any order' : function() {
+      librarySystem('workBlurb', ['name', 'company'], function(name, company) {
+        return name + ' works at ' + company;
+      });
+      
+      librarySystem('name', [], function() {
+        return 'Gordon';
+      });
+      
+      librarySystem('company', [], function() {
+        return 'Watch and Code';
+      });
+      eq(librarySystem('workBlurb'), 'Gordon works at Watch and Code');
+    },
+     'It should run the callback only once for each library.' : function () {
+      var callbackCounter = 0;
+      librarySystem('test', [], function () {
+          callbackCounter++;
+      });
+      librarySystem('test');
+      librarySystem('test');
+      librarySystem('test');
+      eq(callbackCounter, 1);
+  }
+  });
+</script>
